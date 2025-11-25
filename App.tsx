@@ -5,12 +5,46 @@ import { ResultsSection } from './components/ResultsSection';
 import { analyzeIncident, recalculateOverallScore } from './services/keywordService';
 import { AnalysisResult, CategoryResult } from './types';
 import { AlertCircle, Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function App() {
   const [inputText, setInputText] = useState<string>('');
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 👇 AUTO-HEIGHT IFRAME RESIZE LOGIC
+  useEffect(() => {
+    const sendHeight = () => {
+      const height =
+        document.documentElement.scrollHeight ||
+        document.body.scrollHeight;
+
+      if (window.parent) {
+        window.parent.postMessage(
+          {
+            type: 'pai-hazard-resize',
+            height,
+          },
+          '*'
+        );
+      }
+    };
+
+    // Send height initially
+    sendHeight();
+
+    // Update height when window resizes
+    window.addEventListener('resize', sendHeight);
+
+    // Optional: keep sending height periodically (helps when content expands)
+    const intervalId = setInterval(sendHeight, 600);
+
+    return () => {
+      window.removeEventListener('resize', sendHeight);
+      clearInterval(intervalId);
+    };
+  }, []);
 
   const handleAnalysis = useCallback(async () => {
     if (!inputText.trim()) {
