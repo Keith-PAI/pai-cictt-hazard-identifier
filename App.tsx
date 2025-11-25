@@ -2,8 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { Header } from './components/Header';
 import { InputSection } from './components/InputSection';
 import { ResultsSection } from './components/ResultsSection';
-import { analyzeHazard } from './services/geminiService';
-import { AnalysisResult } from './types';
+import { analyzeIncident, recalculateOverallScore } from './services/keywordService';
+import { AnalysisResult, CategoryResult } from './types';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
 export default function App() {
@@ -23,7 +23,7 @@ export default function App() {
     setResult(null);
 
     try {
-      const analysis = await analyzeHazard(inputText);
+      const analysis = await analyzeIncident(inputText);
       setResult(analysis);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred during analysis.");
@@ -31,6 +31,18 @@ export default function App() {
       setLoading(false);
     }
   }, [inputText]);
+
+  const handleUpdateCategories = useCallback((updatedCategories: CategoryResult[]) => {
+    if (result) {
+      const { score, level } = recalculateOverallScore(updatedCategories);
+      setResult({
+        ...result,
+        categories: updatedCategories,
+        overallRiskScore: score,
+        overallRiskLevel: level,
+      });
+    }
+  }, [result]);
 
   const handleClear = useCallback(() => {
     setInputText('');
@@ -68,13 +80,10 @@ export default function App() {
             <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
               <h3 className="text-sm font-semibold text-blue-900 uppercase tracking-wider mb-2">About CICTT Taxonomy</h3>
               <p className="text-sm text-blue-800 leading-relaxed">
-                The CICTT Hazard Identification framework categorizes AI risks into five key dimensions: 
-                <span className="font-bold"> C</span>ompetence, 
-                <span className="font-bold"> I</span>mpact, 
-                <span className="font-bold"> C</span>ontrol, 
-                <span className="font-bold"> T</span>ransparency, and 
-                <span className="font-bold"> T</span>rust. 
-                Use this tool to rapidly score and identify contributing factors in your AI system documentation.
+                The CICTT (Contribution to Inadequacy and Contribution to Threat) taxonomy is the official
+                <span className="font-semibold"> CAST/ICAO occurrence classification system</span> used in aviation safety analysis.
+                Use this tool to rapidly classify aviation incidents and hazards using the standard CICTT framework
+                to identify contributing factors and safety patterns.
               </p>
             </div>
           </div>
@@ -84,11 +93,11 @@ export default function App() {
             {loading ? (
               <div className="h-full flex flex-col items-center justify-center bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-slate-400">
                 <Loader2 className="w-12 h-12 animate-spin mb-4 text-blue-600" />
-                <p className="text-lg font-medium text-slate-600">Analyzing Hazards...</p>
-                <p className="text-sm text-slate-500 mt-2">Consulting the model & applying CICTT taxonomy</p>
+                <p className="text-lg font-medium text-slate-600">Analyzing Incident...</p>
+                <p className="text-sm text-slate-500 mt-2">Analyzing incident text...</p>
               </div>
             ) : result ? (
-              <ResultsSection result={result} onClear={handleClear} />
+              <ResultsSection result={result} onClear={handleClear} onUpdateCategories={handleUpdateCategories} />
             ) : (
               <div className="h-full flex flex-col items-center justify-center bg-slate-100/50 rounded-xl border-2 border-dashed border-slate-300 p-12 text-slate-400">
                 <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mb-4">
@@ -106,7 +115,7 @@ export default function App() {
 
       <footer className="bg-white border-t border-slate-200 py-6 mt-auto">
         <div className="max-w-7xl mx-auto px-4 text-center text-slate-400 text-sm">
-          <p>© {new Date().getFullYear()} PAI Hazard Identification Applet. Powered by Google Gemini 2.5 Flash.</p>
+          <p>© {new Date().getFullYear()} PAI Hazard Identification Applet. Using CAST/ICAO CICTT Taxonomy.</p>
         </div>
       </footer>
     </div>

@@ -10,8 +10,8 @@ export const Header: React.FC = () => {
             <ShieldAlert className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-none">PAI Hazard ID</h1>
-            <p className="text-xs text-slate-500 font-medium tracking-wide">CICTT CLASSIFIER</p>
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-none">Aviation Hazard ID</h1>
+            <p className="text-xs text-slate-500 font-medium tracking-wide">CAST/ICAO CICTT CLASSIFIER</p>
           </div>
         </div>
         <div className="hidden sm:block">
