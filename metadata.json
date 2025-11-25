@@ -1,0 +1,5 @@
+{
+  "name": "PAI Hazard Identifier",
+  "description": "A lightweight AI hazard classification tool using the CICTT taxonomy, designed for embedding in Squarespace and web platforms.",
+  "requestFramePermissions": []
+}
