@@ -21,7 +21,7 @@ export interface CategoryResult {
   isEnabled: boolean;              // User can toggle categories on/off
 }
 
-// Legacy compatibility: CategoryScore for Gemini service
+// Legacy compatibility: CategoryScore
 export interface CategoryScore {
   name: string;                    // The "C", "I", "C", "T", "T" full names
   acronym: string;                 // C, I, C, T, T
@@ -38,7 +38,7 @@ export interface AnalysisResult {
   categories: CategoryResult[];    // All detected + manually added categories
   detectedCount: number;           // Count of auto-detected categories
   totalCategories: number;         // Total CICTT categories (34)
-  recommendations?: string[];      // Optional recommendations (for Gemini compatibility)
+  recommendations?: string[];      // Optional recommendations
 }
 
 // Helper function for risk level determination
